@@ -1,0 +1,2 @@
+- [Bunyan App Architecture](bunyan-architecture.md) — Expo mobile app at artifacts/bunyan/; key decisions on layout, state, charting
+- [Bunyan Hydration Race Fix](bunyan-hydration-fix.md) — AsyncStorage hydration race pattern: queue pre-hydration mutations and replay them onto restored state

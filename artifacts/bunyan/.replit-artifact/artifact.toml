@@ -1,0 +1,23 @@
+kind = "mobile"
+previewPath = "/"
+title = "Bunyan (بنيان)"
+version = "1.0.0"
+id = "artifacts/bunyan"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/" ]
+localPort = 18719
+
+[services.development]
+run = "pnpm --filter @workspace/bunyan run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/bunyan", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/bunyan", "run", "serve" ]
+
+[services.env]
+PORT = "18719"
+BASE_PATH = "/"

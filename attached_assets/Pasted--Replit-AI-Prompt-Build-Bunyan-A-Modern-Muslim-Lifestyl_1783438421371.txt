@@ -1,0 +1,742 @@
+# Replit AI Prompt — Build "Bunyan" (بنيان): A Modern Muslim Lifestyle Mobile App
+
+You are a Senior React Native Engineer, Product Designer, UX Designer, Backend Architect, and Mobile Performance Expert.
+
+Your task is to build a production-ready mobile application called **Bunyan (بنيان)**.
+
+Do not create a simple prototype or UI mockup.
+
+Build a clean, scalable, maintainable application that could realistically be published on both the Google Play Store and Apple App Store.
+
+---
+
+# App Name
+
+**Bunyan (بنيان)**
+
+### Tagline
+
+**Build Yourself. Strengthen the Ummah.**
+
+Inspired by the authentic hadith:
+
+> "The believer to another believer is like a building whose different parts support one another."
+
+The app is designed to help Muslim brothers become more disciplined in every aspect of life while encouraging accountability with trusted brothers.
+
+This is NOT a social media application.
+
+This is NOT a habit tracker.
+
+This is a Personal Operating System for Muslim Men.
+
+---
+
+# Tech Stack
+
+Use the following stack.
+
+## Mobile
+
+* React Native
+* Expo
+* TypeScript
+* Expo Router
+
+## UI
+
+* NativeWind (Tailwind)
+* React Native Reanimated
+* React Native SVG
+* React Native Gesture Handler
+* Lucide Icons
+* React Native Skia (where appropriate)
+
+## State Management
+
+* Zustand
+
+## Forms
+
+* React Hook Form
+* Zod Validation
+
+## Backend
+
+* Supabase
+
+Use:
+
+* Authentication
+* PostgreSQL
+* Storage
+* Realtime
+* Row Level Security
+
+## Charts
+
+* Victory Native XL
+* React Native Chart Kit
+
+## Notifications
+
+Expo Notifications
+
+## Local Storage
+
+MMKV
+
+## PDF
+
+react-native-pdf-lib (or a maintained Expo-compatible alternative)
+
+## Testing
+
+Jest
+
+React Native Testing Library
+
+---
+
+# Design Philosophy
+
+The app should feel like a combination of:
+
+* Apple Health
+* Notion
+* Oura
+* Arc Browser
+* Headspace
+* Material 3
+
+The experience should be:
+
+* Premium
+* Peaceful
+* Masculine
+* Elegant
+* Fast
+* Modern
+* Minimal
+* Islamic
+
+No bright colors.
+
+No childish illustrations.
+
+No excessive gamification.
+
+Avoid clutter.
+
+---
+
+# Theme
+
+Primary
+
+Deep Emerald
+
+Secondary
+
+Slate
+
+Background
+
+Warm White
+
+Accent
+
+Soft Gold
+
+Dark Mode
+
+Charcoal
+
+Rounded corners
+
+20px radius
+
+Large whitespace
+
+Subtle shadows
+
+Premium typography
+
+Support both Light Mode and Dark Mode.
+
+---
+
+# Authentication
+
+Build complete authentication.
+
+* Email
+* Google
+* Apple
+* Continue as Guest
+
+Include onboarding for first-time users.
+
+---
+
+# Bottom Navigation
+
+Create five tabs.
+
+🏠 Home
+
+🕌 Deen
+
+💪 Health
+
+📊 Progress
+
+👤 Profile
+
+Include a floating Quick Log button.
+
+---
+
+# Home Dashboard
+
+Create a premium dashboard showing:
+
+* Islamic greeting
+* Gregorian date
+* Hijri date
+* Daily progress ring
+* Today's score
+* Current streaks
+* Today's goals
+* Upcoming prayer reminder section
+* Quran progress
+* Reading progress
+* Workout progress
+* Water intake
+* Screen time
+* Quote of the day
+* Quick actions
+
+Use reusable dashboard cards.
+
+---
+
+# Deen Module
+
+Build:
+
+Prayer Tracker
+
+* Fajr
+* Dhuhr
+* Asr
+* Maghrib
+* Isha
+
+Allow users to mark:
+
+* Prayed
+* Prayed in Masjid
+* Delayed
+* Missed
+
+Quran Tracker
+
+Track:
+
+* Pages
+* Juz
+* Minutes
+* Surah
+* Completion
+
+Dhikr Tracker
+
+Morning Adhkar
+
+Evening Adhkar
+
+Tasbeeh Counter
+
+Friday Checklist
+
+Ramadan Mode (future-ready architecture)
+
+Islamic Learning
+
+Track:
+
+* Hadith read
+* Lecture watched
+* Islamic books
+
+---
+
+# Health Module
+
+Workout logging
+
+Categories:
+
+* Push
+* Pull
+* Legs
+* Cardio
+* Running
+* Walking
+* Sports
+
+Track:
+
+* Weight
+* Water
+* Calories
+* Protein
+* Sleep
+* Steps
+
+Weekly graphs
+
+Monthly graphs
+
+Body measurements
+
+---
+
+# Learning Module
+
+Track:
+
+Books
+
+Courses
+
+Articles
+
+Islamic books
+
+Podcasts
+
+Reading progress
+
+Reading streak
+
+Learning time
+
+Bookmarks
+
+---
+
+# Goals Module
+
+Support:
+
+Daily Goals
+
+Weekly Goals
+
+90-Day Challenges
+
+Long-Term Goals
+
+Categories:
+
+* Deen
+* Fitness
+* Career
+* Family
+* Marriage
+* Finance
+* Business
+* Character
+
+Include milestones.
+
+Progress percentages.
+
+Countdown timers.
+
+---
+
+# Progress Analytics
+
+Build beautiful analytics.
+
+Include:
+
+Daily
+
+Weekly
+
+Monthly
+
+Yearly
+
+Charts for:
+
+Prayer
+
+Workout
+
+Reading
+
+Quran
+
+Sleep
+
+Water
+
+Screen time
+
+Radar chart
+
+Consistency graph
+
+Heatmap
+
+Streak calendar
+
+Generate meaningful insights from tracked data.
+
+---
+
+# Achievements
+
+Create an achievement engine.
+
+Examples:
+
+30-Day Fajr
+
+100 Workouts
+
+365 Salah
+
+Complete Quran
+
+Read 10 Books
+
+No Social Media
+
+Levels:
+
+Builder
+
+Disciplined
+
+Consistent
+
+Leader
+
+Mentor
+
+Display beautiful achievement cards.
+
+---
+
+# Bunyan Module
+
+This is the unique feature.
+
+Allow users to:
+
+Create Accountability Groups
+
+Invite trusted brothers
+
+Weekly Challenges
+
+Progress Sharing
+
+Mentorship
+
+Private discussion threads
+
+Weekly check-ins
+
+Weekly reflections
+
+Privacy first.
+
+Never create public feeds.
+
+Never encourage showing off.
+
+---
+
+# Weekly Report
+
+Automatically generate a beautiful PDF report.
+
+Include:
+
+Prayer consistency
+
+Workout summary
+
+Reading summary
+
+Quran progress
+
+Water intake
+
+Sleep
+
+Goals completed
+
+Achievements unlocked
+
+Weekly reflection
+
+Goals for next week
+
+Include the Bunyan branding.
+
+Allow sharing through:
+
+WhatsApp
+
+Telegram
+
+Signal
+
+Email
+
+System Share Sheet
+
+---
+
+# Profile
+
+Include:
+
+Profile picture
+
+Statistics
+
+Achievements
+
+Current streaks
+
+Settings
+
+Notifications
+
+Privacy
+
+Export data
+
+Backup
+
+Theme
+
+Language
+
+About
+
+---
+
+# Settings
+
+Dark mode
+
+Light mode
+
+Notifications
+
+Prayer reminders
+
+Biometric lock
+
+Language
+
+Data export
+
+Delete account
+
+---
+
+# Architecture
+
+Use feature-based architecture.
+
+Example:
+
+/app
+
+/features
+
+/components
+
+/services
+
+/hooks
+
+/store
+
+/types
+
+/lib
+
+/assets
+
+/utils
+
+Keep every feature modular.
+
+Avoid duplicated code.
+
+Use reusable UI components.
+
+Follow SOLID principles.
+
+---
+
+# Database Design
+
+Design normalized PostgreSQL tables.
+
+Include:
+
+users
+
+daily_logs
+
+prayers
+
+quran_sessions
+
+reading_sessions
+
+workouts
+
+water_logs
+
+sleep_logs
+
+goals
+
+goal_progress
+
+achievements
+
+groups
+
+members
+
+weekly_reports
+
+reflections
+
+notifications
+
+Include relationships.
+
+Include Row Level Security policies.
+
+---
+
+# Animations
+
+Use subtle animations.
+
+Examples:
+
+Card entrance
+
+Progress ring animation
+
+Achievement unlock
+
+Page transitions
+
+Floating Action Button
+
+Loading skeletons
+
+Pull-to-refresh
+
+Keep animations smooth and minimal.
+
+---
+
+# Accessibility
+
+Support:
+
+Dynamic font sizing
+
+Screen readers
+
+High contrast
+
+Large touch targets
+
+Keyboard navigation where applicable
+
+---
+
+# Performance
+
+Optimize for:
+
+Fast startup
+
+Offline capability
+
+Local caching
+
+Lazy loading
+
+Efficient image loading
+
+Minimal re-renders
+
+Excellent Lighthouse-style performance
+
+---
+
+# Code Quality
+
+Use:
+
+TypeScript everywhere
+
+Reusable hooks
+
+Reusable components
+
+Clean folder structure
+
+Strong typing
+
+Meaningful comments where helpful
+
+Avoid hardcoded values
+
+Create constants and theme files.
+
+---
+
+# Deliverables
+
+Generate:
+
+1. Complete folder structure
+2. Supabase schema
+3. Authentication flow
+4. All mobile screens
+5. Responsive layouts
+6. Navigation
+7. Database integration
+8. State management
+9. Reusable UI components
+10. Charts
+11. PDF generation
+12. Sample seed data
+13. Complete README
+14. Environment variables template
+15. Setup instructions
+16. Production-ready code
+
+The final application should feel polished enough to serve as a flagship portfolio project and a strong foundation for a real commercial product. Prioritize clean architecture, scalability, accessibility, and maintainability over shortcuts or placeholder implementations.
