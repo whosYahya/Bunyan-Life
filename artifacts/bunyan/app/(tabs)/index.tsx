@@ -6,20 +6,13 @@ import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/context/AppContext';
 import ProgressRing from '@/components/ProgressRing';
 import Greeting from '@/components/Greeting';
-import UpcomingPrayerCard from '@/components/UpcomingPrayerCard';
-import HadithCard from '@/components/HadithCard';
+import NextPrayerCard from '@/components/NextPrayerCard';
+import WisdomCard from '@/components/WisdomCard';
 import { toHijri, formatHijri } from '@/utils/hijri';
-import { PrayerName, PrayerStatus } from '@/types';
+import { PRAYER_TIMES, formatPrayerTimeShort } from '@/utils/prayerTimes';
+import { PrayerStatus } from '@/types';
 
 const TAB_BAR_EXTRA = 110;
-
-const PRAYER_META: { key: PrayerName; short: string; time: string }[] = [
-  { key: 'fajr',    short: 'Fajr',    time: '5:17' },
-  { key: 'dhuhr',   short: 'Dhuhr',   time: '12:15' },
-  { key: 'asr',     short: 'Asr',     time: '3:48' },
-  { key: 'maghrib', short: 'Maghrib', time: '6:42' },
-  { key: 'isha',    short: 'Isha',    time: '8:09' },
-];
 
 function prayerStatusColor(status: PrayerStatus | null, colors: ReturnType<typeof useColors>) {
   if (status === 'prayed' || status === 'masjid') return colors.primary;
@@ -78,16 +71,12 @@ export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const {
-    getTodayLog, calculateDailyScore, getPrayerStreak, getFajrStreak,
-    getQuranStreak, getWorkoutStreak, state,
+    getTodayLog, calculateDailyScore, getPrayerStreak, state,
   } = useApp();
 
   const todayLog = getTodayLog();
   const score = calculateDailyScore(todayLog);
   const prayerStreak = getPrayerStreak();
-  const fajrStreak = getFajrStreak();
-  const quranStreak = getQuranStreak();
-  const workoutStreak = getWorkoutStreak();
 
   const now = new Date();
   const hijri = toHijri(now);
@@ -95,7 +84,7 @@ export default function HomeScreen() {
   const hijriStr = formatHijri(hijri);
 
   const completedPrayers = useMemo(() => {
-    return PRAYER_META.filter(p =>
+    return PRAYER_TIMES.filter(p =>
       todayLog.prayers[p.key] === 'prayed' || todayLog.prayers[p.key] === 'masjid'
     ).length;
   }, [todayLog.prayers]);
@@ -116,13 +105,6 @@ export default function HomeScreen() {
     borderWidth: 1,
     borderColor: colors.border,
   };
-
-  const streaks = [
-    { label: 'Prayer', value: prayerStreak, icon: 'moon-outline' as const, color: colors.primary },
-    { label: 'Fajr', value: fajrStreak, icon: 'sunny-outline' as const, color: colors.gold },
-    { label: 'Quran', value: quranStreak, icon: 'book-outline' as const, color: '#22C55E' },
-    { label: 'Workout', value: workoutStreak, icon: 'barbell-outline' as const, color: '#EF4444' },
-  ];
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -171,7 +153,7 @@ export default function HomeScreen() {
 
         {/* 3. Next Prayer Card */}
         <View style={{ marginHorizontal: 16 }}>
-          <UpcomingPrayerCard />
+          <NextPrayerCard />
         </View>
 
         {/* 4. Today's Prayer Tracker */}
@@ -186,7 +168,7 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={{ flexDirection: 'row' }}>
-            {PRAYER_META.map(p => {
+            {PRAYER_TIMES.map(p => {
               const status = todayLog.prayers[p.key];
               const bgColor = prayerStatusColor(status, colors);
               const icon = prayerStatusIcon(status);
@@ -201,9 +183,11 @@ export default function HomeScreen() {
                     <Ionicons name={icon} size={16} color={status ? '#fff' : colors.mutedForeground} />
                   </View>
                   <Text style={{ fontSize: 10, fontWeight: '600', color: status ? bgColor : colors.foreground }}>
-                    {p.short}
+                    {p.name}
                   </Text>
-                  <Text style={{ fontSize: 9, color: colors.mutedForeground, marginTop: 1 }}>{p.time}</Text>
+                  <Text style={{ fontSize: 9, color: colors.mutedForeground, marginTop: 1 }}>
+                    {formatPrayerTimeShort(p.hours, p.minutes)}
+                  </Text>
                 </View>
               );
             })}
@@ -285,36 +269,12 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* 7. Hadith / Ayah of the Day */}
+        {/* 7. Wisdom of the Day */}
         <View style={{ marginHorizontal: 16 }}>
-          <HadithCard />
+          <WisdomCard />
         </View>
 
-        {/* 8. Current Streaks */}
-        <View style={card}>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground, marginBottom: 14 }}>
-            Current Streaks
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {streaks.map(s => (
-              <View key={s.label} style={{
-                flex: 1, alignItems: 'center', paddingVertical: 14,
-                borderRadius: 14, backgroundColor: s.color + '12',
-                borderWidth: 1, borderColor: s.color + '30',
-              }}>
-                <Ionicons name={s.icon} size={16} color={s.color} />
-                <Text style={{ fontSize: 22, fontWeight: '800', color: s.color, marginTop: 5 }}>
-                  {s.value}
-                </Text>
-                <Text style={{ fontSize: 9, color: colors.mutedForeground, marginTop: 2 }}>
-                  {s.label}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* 9. Recent Activity */}
+        {/* 8. Recent Activity */}
         {recentActivity.length > 0 && (
           <View style={card}>
             <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground, marginBottom: 14 }}>

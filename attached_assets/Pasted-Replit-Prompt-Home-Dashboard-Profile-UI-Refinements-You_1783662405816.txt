@@ -1,0 +1,199 @@
+Replit Prompt – Home Dashboard & Profile UI Refinements
+
+You are working on the existing Bunyan React Native (Expo + TypeScript) application.
+
+Do NOT redesign the application.
+
+Keep all existing navigation, Supabase integration, authentication, animations, colors, spacing, and architecture intact.
+
+Only implement the following UI refinements.
+
+1. Redesign the "Next Prayer" Card
+
+Replace the existing Next Prayer card with a layout matching the attached reference.
+
+Layout
+----------------------------------------
+NEXT PRAYER
+
+Maghrib
+
+7:03 PM • 2h 18m away
+
+                🌙
+          Reminder Set ✓
+----------------------------------------
+Requirements
+
+Left Side
+
+Small label
+NEXT PRAYER
+Prayer name
+
+Large bold typography
+
+Example
+
+Maghrib
+Underneath
+Prayer Time • Remaining Time
+
+Example
+
+7:03 PM • 2h 18m away
+
+Right Side
+
+Rounded square icon container.
+
+Display an icon depending on the upcoming prayer.
+
+Example
+
+🌅 Fajr
+☀️ Dhuhr
+🌤 Asr
+🌇 Maghrib
+🌙 Isha
+
+Below the icon display
+
+Reminder Set ✓
+
+if notifications are enabled.
+
+Otherwise
+
+Enable Reminder
+
+The card should have:
+
+rounded corners
+premium shadow
+spacing identical to the reference image
+no unnecessary borders
+
+Keep it consistent with the Bunyan design language.
+
+2. Undo Previous Wisdom Changes
+
+Revert the previous implementation.
+
+Remove:
+
+Hadith/Ayah Toggle
+Swipe gesture
+Local JSON rotation
+
+Restore the original Wisdom of the Day card exactly as it existed before.
+
+Do not modify its styling or functionality.
+
+3. Update Profile / Settings Screen
+
+Replace the current profile options with the layout shown in the attached design.
+
+Create the following grouped sections.
+
+TRACK
+Badges & Achievements
+Progress Analytics
+Weekly Report
+ACCOUNT
+Notifications
+Privacy
+Data & Backup
+Settings
+MORE
+Invite a Brother
+Brotherhood
+Sign Out
+
+Each option should:
+
+use existing card styling
+have left icon
+right chevron
+rounded grouped cards
+equal spacing
+smooth press animation
+4. Remove Dashboard Statistics Section
+
+Remove the entire statistics section highlighted in the attached screenshot.
+
+Delete:
+
+Total Prayers
+
+Quran Pages
+
+Workouts
+
+Water Logged
+
+Also remove
+
+Current Streaks
+
+that appears directly beneath it.
+
+Do not leave empty spacing.
+
+The layout should automatically collapse upward.
+
+5. Dashboard Order
+
+The Home Dashboard should now be:
+
+Greeting
+
+Today's Score
+
+Next Prayer
+
+Today's Prayer
+
+Quick Stats
+
+Today's Goals
+
+Wisdom of the Day
+
+Recent Activity
+
+The removed statistics cards should no longer exist.
+
+6. Maintain Existing Functionality
+
+Do NOT modify:
+
+Authentication
+Navigation
+Supabase
+Database
+Zustand store
+Theme
+Dark Mode
+Animations
+Folder structure
+
+Only update the UI components listed above.
+
+7. Code Quality
+
+Reuse existing components whenever possible.
+
+Create or update:
+
+NextPrayerCard.tsx
+
+ProfileMenu.tsx
+
+SettingsList.tsx
+
+Avoid duplicated code.
+
+Use TypeScript.
+
+Follow the existing design system.

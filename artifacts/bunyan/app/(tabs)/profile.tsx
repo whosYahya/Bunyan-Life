@@ -64,7 +64,7 @@ function EditNameModal({ visible, current, onSave, onClose }: {
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { state, updateProfile, getTotalStats, getPrayerStreak, getQuranStreak, getWorkoutStreak, logout, resetOnboarding } = useApp();
+  const { state, updateProfile, logout, resetOnboarding } = useApp();
   const router = useRouter();
   const [editingName, setEditingName] = useState(false);
 
@@ -96,17 +96,11 @@ export default function ProfileScreen() {
     );
   };
 
-  const stats = getTotalStats();
-  const prayerStreak = getPrayerStreak();
-  const quranStreak = getQuranStreak();
-  const workoutStreak = getWorkoutStreak();
   const level = state.profile.level;
   const levelColor = LEVEL_COLORS[level] ?? colors.primary;
   const initials = state.profile.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const joinedDate = new Date(state.profile.joinedAt);
   const daysActive = Math.floor((Date.now() - joinedDate.getTime()) / 86400000);
-
-  const unlockedAchievements = state.achievements.filter(a => a.unlockedAt);
 
   const card = {
     backgroundColor: colors.card, borderRadius: colors.radius, padding: 18, marginBottom: 12,
@@ -153,97 +147,97 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
-        {/* Stats overview */}
-        <View style={[card, { padding: 0 }]}>
+        {/* TRACK */}
+        <Text style={{ fontSize: 11, fontWeight: '700', color: colors.mutedForeground, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+          Track
+        </Text>
+        <View style={[card, { padding: 0, marginBottom: 20 }]}>
           {[
-            { label: 'Total Prayers', value: stats.totalPrayers.toString(), icon: 'moon-outline' as const, color: colors.primary },
-            { label: 'Quran Pages', value: stats.totalQuranPages.toString(), icon: 'book-outline' as const, color: colors.gold },
-            { label: 'Workouts', value: stats.totalWorkouts.toString(), icon: 'barbell-outline' as const, color: '#EF4444' },
-            { label: 'Water Logged', value: `${stats.totalWaterLiters}L`, icon: 'water-outline' as const, color: '#3B82F6' },
-          ].map((stat, i, arr) => (
-            <View key={stat.label} style={{
-              flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 14,
-              borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: colors.border,
-            }}>
-              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: stat.color + '18', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
-                <Ionicons name={stat.icon} size={18} color={stat.color} />
-              </View>
-              <Text style={{ flex: 1, fontSize: 14, color: colors.foreground, fontWeight: '500' }}>{stat.label}</Text>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: colors.foreground }}>{stat.value}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Streaks */}
-        <View style={card}>
-          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground, marginBottom: 14 }}>Current Streaks</Text>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {[
-              { label: 'Prayer', value: prayerStreak, color: colors.primary },
-              { label: 'Quran', value: quranStreak, color: colors.gold },
-              { label: 'Workout', value: workoutStreak, color: '#EF4444' },
-            ].map(s => (
-              <View key={s.label} style={{
-                flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14,
-                backgroundColor: s.color + '12', borderWidth: 1, borderColor: s.color + '30',
-              }}>
-                <Ionicons name="flame" size={18} color={s.color} />
-                <Text style={{ fontSize: 22, fontWeight: '800', color: s.color, marginTop: 4 }}>{s.value}</Text>
-                <Text style={{ fontSize: 10, color: colors.mutedForeground, marginTop: 2 }}>{s.label}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Achievements */}
-        {unlockedAchievements.length > 0 && (
-          <View style={card}>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground, marginBottom: 14 }}>
-              Achievements ({unlockedAchievements.length}/{state.achievements.length})
-            </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-              {unlockedAchievements.map(a => {
-                const lc = a.level === 'gold' ? colors.gold : a.level === 'silver' ? '#94A3B8' : '#CD7F32';
-                return (
-                  <View key={a.id} style={{
-                    width: 72, alignItems: 'center', paddingVertical: 10, paddingHorizontal: 6,
-                    borderRadius: 14, backgroundColor: lc + '18', borderWidth: 1, borderColor: lc + '40',
-                  }}>
-                    <Ionicons name={a.iconName as any} size={22} color={lc} />
-                    <Text style={{ fontSize: 9, fontWeight: '600', color: colors.foreground, textAlign: 'center', marginTop: 5 }} numberOfLines={2}>
-                      {a.title}
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        )}
-
-        {/* Settings */}
-        <View style={[card, { padding: 0 }]}>
-          {[
-            { label: 'Notifications', icon: 'notifications-outline' as const, onPress: () => {} },
-            { label: 'Prayer Reminders', icon: 'alarm-outline' as const, onPress: () => {} },
-            { label: 'Language', icon: 'language-outline' as const, onPress: () => {} },
-            { label: 'Export Data', icon: 'download-outline' as const, onPress: () => {} },
-            { label: 'About Bunyan', icon: 'information-circle-outline' as const, onPress: () => {} },
+            { label: 'Badges & Achievements', icon: 'ribbon-outline' as const, color: colors.gold },
+            { label: 'Progress Analytics', icon: 'bar-chart-outline' as const, color: colors.primary },
+            { label: 'Weekly Report', icon: 'calendar-outline' as const, color: '#22C55E' },
           ].map((item, i, arr) => (
             <TouchableOpacity
               key={item.label}
-              onPress={item.onPress}
+              activeOpacity={0.7}
               style={{
                 flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16,
                 borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: colors.border,
               }}
             >
-              <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: item.color + '18', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+                <Ionicons name={item.icon} size={18} color={item.color} />
+              </View>
+              <Text style={{ flex: 1, fontSize: 14, fontWeight: '500', color: colors.foreground }}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* ACCOUNT */}
+        <Text style={{ fontSize: 11, fontWeight: '700', color: colors.mutedForeground, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+          Account
+        </Text>
+        <View style={[card, { padding: 0, marginBottom: 20 }]}>
+          {[
+            { label: 'Notifications', icon: 'notifications-outline' as const, color: colors.foreground },
+            { label: 'Privacy', icon: 'shield-checkmark-outline' as const, color: colors.foreground },
+            { label: 'Data & Backup', icon: 'cloud-upload-outline' as const, color: colors.foreground },
+            { label: 'Settings', icon: 'settings-outline' as const, color: colors.foreground },
+          ].map((item, i, arr) => (
+            <TouchableOpacity
+              key={item.label}
+              activeOpacity={0.7}
+              style={{
+                flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16,
+                borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: colors.border,
+              }}
+            >
+              <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
                 <Ionicons name={item.icon} size={18} color={colors.foreground} />
               </View>
               <Text style={{ flex: 1, fontSize: 14, fontWeight: '500', color: colors.foreground }}>{item.label}</Text>
               <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
             </TouchableOpacity>
           ))}
+        </View>
+
+        {/* MORE */}
+        <Text style={{ fontSize: 11, fontWeight: '700', color: colors.mutedForeground, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+          More
+        </Text>
+        <View style={[card, { padding: 0, marginBottom: 20 }]}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}
+          >
+            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.primary + '18', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+              <Ionicons name="person-add-outline" size={18} color={colors.primary} />
+            </View>
+            <Text style={{ flex: 1, fontSize: 14, fontWeight: '500', color: colors.foreground }}>Invite a Brother</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}
+          >
+            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.gold + '18', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+              <Ionicons name="people-outline" size={18} color={colors.gold} />
+            </View>
+            <Text style={{ flex: 1, fontSize: 14, fontWeight: '500', color: colors.foreground }}>Brotherhood</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleLogout}
+            activeOpacity={0.7}
+            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16 }}
+          >
+            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: colors.destructive + '14', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+              <Ionicons name="log-out-outline" size={18} color={colors.destructive} />
+            </View>
+            <Text style={{ flex: 1, fontSize: 14, fontWeight: '600', color: colors.destructive }}>Sign Out</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
+          </TouchableOpacity>
         </View>
 
         {/* Developer Tools */}
@@ -267,16 +261,6 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
           </TouchableOpacity>
         </View>
-
-        {/* Sign Out */}
-        <TouchableOpacity
-          onPress={handleLogout}
-          style={[card, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, borderColor: colors.destructive + '30', backgroundColor: colors.destructive + '08' }]}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="log-out-outline" size={18} color={colors.destructive} />
-          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.destructive }}>Sign Out</Text>
-        </TouchableOpacity>
 
         {/* App info */}
         <View style={{ alignItems: 'center', paddingVertical: 12 }}>
