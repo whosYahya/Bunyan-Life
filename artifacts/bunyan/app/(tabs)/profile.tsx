@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/context/AppContext';
+import { useRouter } from 'expo-router';
 
 const TAB_BAR_EXTRA = 100;
 
@@ -63,8 +64,37 @@ function EditNameModal({ visible, current, onSave, onClose }: {
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { state, updateProfile, getTotalStats, getPrayerStreak, getQuranStreak, getWorkoutStreak } = useApp();
+  const { state, updateProfile, getTotalStats, getPrayerStreak, getQuranStreak, getWorkoutStreak, logout, resetOnboarding } = useApp();
+  const router = useRouter();
   const [editingName, setEditingName] = useState(false);
+
+  const handleLogout = async () => {
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out', style: 'destructive', onPress: async () => {
+          await logout();
+          router.replace('/login');
+        },
+      },
+    ]);
+  };
+
+  const handleResetOnboarding = async () => {
+    Alert.alert(
+      'Reset Onboarding',
+      'This will show the onboarding flow next time you open the app. Use for testing only.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset', style: 'destructive', onPress: async () => {
+            await resetOnboarding();
+            Alert.alert('Done', 'Onboarding will show on next app launch.');
+          },
+        },
+      ]
+    );
+  };
 
   const stats = getTotalStats();
   const prayerStreak = getPrayerStreak();
@@ -215,6 +245,38 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Developer Tools */}
+        <View style={[card, { padding: 0, borderColor: colors.warning + '40' }]}>
+          <View style={{ paddingHorizontal: 18, paddingTop: 14, paddingBottom: 10 }}>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: colors.warning, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+              Developer
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleResetOnboarding}
+            style={{
+              flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, paddingVertical: 16,
+              borderTopWidth: 1, borderTopColor: colors.border,
+            }}
+          >
+            <View style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: colors.warning + '18', alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+              <Ionicons name="refresh-outline" size={18} color={colors.warning} />
+            </View>
+            <Text style={{ flex: 1, fontSize: 14, fontWeight: '500', color: colors.foreground }}>Reset Onboarding</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Sign Out */}
+        <TouchableOpacity
+          onPress={handleLogout}
+          style={[card, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, borderColor: colors.destructive + '30', backgroundColor: colors.destructive + '08' }]}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="log-out-outline" size={18} color={colors.destructive} />
+          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.destructive }}>Sign Out</Text>
+        </TouchableOpacity>
 
         {/* App info */}
         <View style={{ alignItems: 'center', paddingVertical: 12 }}>

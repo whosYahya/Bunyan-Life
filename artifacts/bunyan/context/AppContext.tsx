@@ -58,6 +58,7 @@ interface AppState {
   achievements: Achievement[];
   settings: AppSettings;
   auth: AuthState;
+  hasCompletedOnboarding: boolean;
 }
 
 const CREDENTIALS_KEY = '@bunyan/credentials/v1';
@@ -69,6 +70,7 @@ const INITIAL_STATE: AppState = {
   achievements: INITIAL_ACHIEVEMENTS,
   settings: { notifications: true, prayerReminders: true, language: 'en' },
   auth: { isAuthenticated: false, email: null, authType: null },
+  hasCompletedOnboarding: false,
 };
 
 interface AppContextValue {
@@ -100,6 +102,9 @@ interface AppContextValue {
   loginWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (args: { name: string; email: string; password: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  // Onboarding
+  completeOnboarding: () => Promise<void>;
+  resetOnboarding: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -437,10 +442,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [update]);
 
   const logout = useCallback(async () => {
+    // Per spec: only remove isLoggedIn, do NOT remove hasCompletedOnboarding.
+    // After logout the user goes straight to /welcome (login), never onboarding.
     update(prev => ({
       ...prev,
       auth: { isAuthenticated: false, email: null, authType: null },
     }));
+  }, [update]);
+
+  const completeOnboarding = useCallback(async () => {
+    update(prev => ({ ...prev, hasCompletedOnboarding: true }));
+  }, [update]);
+
+  const resetOnboarding = useCallback(async () => {
+    update(prev => ({ ...prev, hasCompletedOnboarding: false }));
   }, [update]);
 
   const value: AppContextValue = {
@@ -450,6 +465,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     logPrayer, logQuran, toggleDhikr, setTasbeeh, logWorkout, addWater, logSleep,
     logNutrition, logLearning, updateProfile, addGoal, updateGoalProgress, deleteGoal,
     loginAsGuest, loginWithEmail, register, logout,
+    completeOnboarding, resetOnboarding,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

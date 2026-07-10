@@ -1,24 +1,47 @@
 ---
 name: Bunyan App Architecture
-description: Key architectural decisions for the Bunyan Expo mobile app
+description: Key decisions on layout, state, routing, and component structure for the Bunyan Expo app at artifacts/bunyan/
 ---
 
-## App: Bunyan (بنيان) — Personal Operating System for Muslim Men
-Located at `artifacts/bunyan/`, slug `bunyan`, previewPath `/`.
+## Stack
+- Expo Router v6, React Native 0.81, AsyncStorage (no Supabase/backend), React Context
+- Reanimated 4, react-native-svg, Ionicons, Inter font
+- No Victory Native — custom bar charts via Reanimated with each bar as a separate component
 
-## Critical Decisions
+## Folder structure
+- `app/` — Expo Router flat-file routes: `(tabs)/`, `welcome.tsx`, `login.tsx`, `register.tsx`, `onboarding.tsx`, `splash/SplashScreen.tsx`
+- `components/` — Shared UI: `ProgressRing`, `Greeting`, `UpcomingPrayerCard`, `HadithCard`, `onboarding/` (ContinueButton, OnboardingCard, ProgressDots, SkipButton)
+- `context/AppContext.tsx` — All state; includes auth + onboarding flags
+- `assets/data/` — `ayahs.json` (12), `hadiths.json` (13)
+- `utils/appState.ts` — Storage key constants
+- `hooks/useAppInitialization.ts` — Returns `{ isReady, decision }` for post-splash routing
 
-**Tabs + FAB layout:** Use ClassicTabLayout (5 Tabs + absolute-positioned FAB). NativeTabs/liquid glass were rejected as too complex with the 5-tab + FAB requirement. FAB positioned at `bottom: insets.bottom + TAB_BAR_HEIGHT + 12`.
+## Navigation / launch flow
+- Native splash hidden on font load; immediately replaced by `BunyanSplash` overlay (absolute, z:9999)
+- `AuthGuard` in `_layout.tsx` mounts the Stack under the overlay; after min 2.6s + hydration, calls `handleSplashDone`
+- Post-splash routing: `!hasCompletedOnboarding` → `/onboarding`; else `!isAuthenticated` → `/welcome`; else stay on `/(tabs)`
+- Logout routes to `/login` (NOT `/welcome` — `hasCompletedOnboarding` is preserved)
+- `completeOnboarding()` called when user picks "Create Account" or "Already Have Account" on onboarding slide 6
 
-**No Victory Native:** Victory Native requires native builds incompatible with Expo Go. Custom bar charts via react-native-reanimated's `useAnimatedStyle`. Each bar MUST be its own component (`BarItem`) — never call `useAnimatedStyle` inside a `.map()`.
+## State decisions
+- `hasCompletedOnboarding: boolean` in AppState (persisted with main `@bunyan/state/v1` key)
+- `auth: { isAuthenticated, email, authType }` in AppState
+- Credentials stored separately under `@bunyan/credentials/v1`
+- Hydration-race fix: pre-hydration mutations queued in `pendingMutations` ref and replayed
 
-**State management:** AsyncStorage only (no backend/Supabase), all in `context/AppContext.tsx`. Key: `@bunyan/state/v1`.
+## Tab bar
+- ClassicTabLayout with 5 tabs + absolutely-positioned FAB + QuickLogModal bottom sheet
+- NativeTabs rejected (too complex with 5 tabs + FAB)
 
-**Score formula:** prayers(40pts) + quran(15) + dhikr(15) + workout(15) + water(10) + sleep(5) = 100 max.
+## useColors() typing
+- Access `colors.dark` / `colors.light` directly (not via unsafe cast)
 
-**Colors:** Deep Emerald `#1A6B45` primary, Soft Gold `#C9A84C` accent, Warm White `#FAFAF8` background, Charcoal `#111410` dark mode. Both light and dark palettes in `constants/colors.ts`. `useColors()` returns `{ ...palette, radius: colors.radius }`.
+## Onboarding
+- 6 slides, horizontal FlatList with pagingEnabled (no extra package needed)
+- Components live in `components/onboarding/` (NOT under `app/` to avoid Expo Router treating them as routes)
+- Route file is flat `app/onboarding.tsx` (directory structure caused "No route named onboarding" warning)
+- Slide 6: "Create My Account" + "I already have an account" — both call `completeOnboarding()` before navigating
 
-**Web preview warnings:** `shadow*`, `pointerEvents`, `transform-origin` warnings in Expo web preview are expected and harmless — they don't affect native mobile.
-
-**Why:**
-Expo Go incompatibility with native packages was the primary constraint. Hydration-safe mutations and custom charts were needed to deliver a functional first build.
+## Profile screen dev tools
+- "Reset Onboarding" button calls `resetOnboarding()` — sets `hasCompletedOnboarding = false`
+- "Sign Out" button calls `logout()` then `router.replace('/login')`

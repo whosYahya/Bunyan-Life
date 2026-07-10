@@ -1,0 +1,363 @@
+Build First-Time User Flow with Splash Screen & Onboarding
+
+You are working on the existing Bunyan React Native (Expo + TypeScript) mobile application.
+
+Do NOT redesign the app.
+
+Keep the existing design system, theme, colors, typography, spacing, navigation, animations, Supabase integration, authentication, and folder structure.
+
+Only implement the first-time user experience.
+
+Objective
+
+Implement a professional launch flow similar to Apple, Headspace, Duolingo, and Notion.
+
+The app should intelligently determine whether the user is:
+
+Opening the app for the first time
+Returning after onboarding
+Already authenticated
+Not authenticated
+Step 1 — Create Splash Screen
+
+Create a new screen:
+
+SplashScreen.tsx
+
+Design requirements:
+
+Use the Bunyan logo centered vertically.
+Dark emerald background (#0F3D2E or current theme).
+Subtle Islamic geometric background pattern with 5–10% opacity.
+Fade-in logo animation.
+Slight scale animation.
+Fade-in app name.
+
+Display:
+
+(Bunyan Logo)
+
+Bunyan
+
+بنيان
+
+Do NOT display loading spinners.
+
+Duration:
+
+2–3 seconds.
+
+Then begin initialization.
+
+Step 2 — Determine App State
+
+After Splash Screen finishes:
+
+Check these values in local storage (MMKV or AsyncStorage):
+
+hasCompletedOnboarding
+
+isLoggedIn
+
+Logic:
+
+If
+
+hasCompletedOnboarding == false
+
+Navigate to:
+
+Onboarding
+
+Else
+
+If
+
+isLoggedIn == true
+
+Navigate to
+
+Home Dashboard
+
+Else
+
+Navigate to
+
+Authentication Screen
+Step 3 — Build Onboarding Flow
+
+Use the attached Figma screens as the UI reference.
+
+Do NOT redesign them.
+
+Recreate them faithfully.
+
+Use smooth horizontal paging.
+
+Use:
+
+React Native Pager View
+
+or
+
+React Native Reanimated Carousel
+
+The onboarding consists of 6 pages.
+
+Screen 1
+
+Welcome
+
+Button:
+
+Get Started
+
+No Skip button.
+
+Pressing
+
+Get Started
+
+goes to Screen 2.
+
+Screen 2
+
+Your Faith,
+
+Your Foundation
+
+Button
+
+Continue
+
+Skip
+
+Screen 3
+
+Strengthen
+
+Every Dimension
+
+Continue
+
+Skip
+
+Screen 4
+
+Goals Aligned
+
+With Your Values
+
+Continue
+
+Skip
+
+Screen 5
+
+Rise Together
+
+In Silence
+
+Continue
+
+Skip
+
+Screen 6
+
+Your Data.
+
+Your Amanah.
+
+Primary Button
+
+Create My Account
+
+Secondary Button
+
+I already have an account
+Step 4 — Navigation Logic
+
+Continue
+
+→ Next Screen
+
+Skip
+
+→ Last Screen
+
+Last Screen
+
+Create My Account
+
+→ Register Screen
+
+Already Have Account
+
+→ Login Screen
+
+Step 5 — Finish Onboarding
+
+When the user presses either
+
+Create Account
+
+or
+
+Login
+
+store
+
+hasCompletedOnboarding = true
+
+inside MMKV / AsyncStorage.
+
+The onboarding should never appear again unless explicitly reset.
+
+Step 6 — Authentication Flow
+
+If the user selects
+
+Create Account
+
+Navigate to
+
+RegisterScreen
+
+If the user selects
+
+Already Have Account
+
+Navigate to
+
+LoginScreen
+
+After successful authentication:
+
+Store
+
+isLoggedIn = true
+
+Navigate to
+
+Home Dashboard
+Step 7 — Logout
+
+When user logs out:
+
+Only remove
+
+isLoggedIn
+
+DO NOT remove
+
+hasCompletedOnboarding
+
+The user should go directly to Login.
+
+Never show onboarding again.
+
+Step 8 — Developer Testing
+
+Create a developer helper.
+
+Example:
+
+Reset Onboarding
+
+inside
+
+Settings
+
+This should clear
+
+hasCompletedOnboarding
+
+so onboarding can be tested again.
+
+Folder Structure
+app/
+
+   splash/
+
+      SplashScreen.tsx
+
+   onboarding/
+
+      OnboardingScreen.tsx
+
+      components/
+
+         OnboardingCard.tsx
+
+         ProgressDots.tsx
+
+         SkipButton.tsx
+
+         ContinueButton.tsx
+
+assets/
+
+   onboarding/
+
+      screen1.png
+
+      screen2.png
+
+      ...
+
+hooks/
+
+   useAppInitialization.ts
+
+utils/
+
+   appState.ts
+Animations
+
+Use subtle premium animations.
+
+Splash
+
+Fade
+Scale
+
+Onboarding
+
+Smooth swipe
+Page indicator animation
+Button press animation
+Fade between illustrations
+
+Use Reanimated.
+
+Keep animations smooth and elegant.
+
+Code Quality
+TypeScript
+Reusable components
+Clean architecture
+No duplicated code
+Preserve existing app functionality
+Maintain current design system
+Final User Flow
+App Opens
+        │
+        ▼
+ Splash Screen
+        │
+        ▼
+Has completed onboarding?
+        │
+   ┌────┴────┐
+   │         │
+  NO        YES
+   │         │
+   ▼         ▼
+Onboarding  Logged In?
+               │
+         ┌─────┴──────┐
+         │            │
+        YES          NO
+         │            │
+         ▼            ▼
+   Home Dashboard   Login Screen
