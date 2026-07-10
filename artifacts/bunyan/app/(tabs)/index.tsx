@@ -1,52 +1,25 @@
 import React, { useMemo } from 'react';
-import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Platform,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors } from '@/hooks/useColors';
 import { useApp } from '@/context/AppContext';
 import ProgressRing from '@/components/ProgressRing';
+import Greeting from '@/components/Greeting';
+import UpcomingPrayerCard from '@/components/UpcomingPrayerCard';
+import HadithCard from '@/components/HadithCard';
 import { toHijri, formatHijri } from '@/utils/hijri';
 import { PrayerName, PrayerStatus } from '@/types';
 
-const TAB_BAR_EXTRA = 100;
+const TAB_BAR_EXTRA = 110;
 
-const PRAYER_NAMES: { key: PrayerName; short: string; arabic: string; time: string }[] = [
-  { key: 'fajr', short: 'Fajr', arabic: 'الفجر', time: '5:17' },
-  { key: 'dhuhr', short: 'Dhuhr', arabic: 'الظهر', time: '12:15' },
-  { key: 'asr', short: 'Asr', arabic: 'العصر', time: '3:48' },
-  { key: 'maghrib', short: 'Maghrib', arabic: 'المغرب', time: '6:42' },
-  { key: 'isha', short: 'Isha', arabic: 'العشاء', time: '8:09' },
+const PRAYER_META: { key: PrayerName; short: string; time: string }[] = [
+  { key: 'fajr',    short: 'Fajr',    time: '5:17' },
+  { key: 'dhuhr',   short: 'Dhuhr',   time: '12:15' },
+  { key: 'asr',     short: 'Asr',     time: '3:48' },
+  { key: 'maghrib', short: 'Maghrib', time: '6:42' },
+  { key: 'isha',    short: 'Isha',    time: '8:09' },
 ];
-
-const QUOTES = [
-  { text: 'The believer to another believer is like a building whose different parts support one another.', source: 'Prophet Muhammad ﷺ', ref: 'Bukhari & Muslim' },
-  { text: 'Indeed, Allah will not change the condition of a people until they change what is in themselves.', source: 'The Quran', ref: '13:11' },
-  { text: 'Verily, with hardship comes ease.', source: 'The Quran', ref: '94:6' },
-  { text: 'The strong man is not the one who can overpower others. Rather, the strong man is the one who controls himself when angry.', source: 'Prophet Muhammad ﷺ', ref: 'Bukhari' },
-  { text: 'Take benefit of five before five: your youth before old age, your health before sickness, your wealth before poverty, your free time before preoccupation, and your life before death.', source: 'Prophet Muhammad ﷺ', ref: 'Al-Bayhaqi' },
-  { text: 'Whoever treads a path seeking knowledge, Allah will make easy for him a path to Paradise.', source: 'Prophet Muhammad ﷺ', ref: 'Muslim' },
-  { text: 'The best of you are those who learn the Quran and teach it.', source: 'Prophet Muhammad ﷺ', ref: 'Bukhari' },
-];
-
-function getGreeting(): { arabic: string; english: string } {
-  const h = new Date().getHours();
-  if (h >= 3 && h < 6) return { arabic: 'الفجر قريب', english: 'Rise for Fajr,' };
-  if (h >= 6 && h < 12) return { arabic: 'صباح الخير', english: 'Good Morning,' };
-  if (h >= 12 && h < 17) return { arabic: 'السلام عليكم', english: 'Good Afternoon,' };
-  if (h >= 17 && h < 21) return { arabic: 'السلام عليكم', english: 'Good Evening,' };
-  return { arabic: 'تصبح على خير', english: 'Good Night,' };
-}
-
-function scoreLabel(s: number) {
-  if (s >= 96) return 'Perfect day!';
-  if (s >= 81) return 'Excellent work';
-  if (s >= 61) return 'Great progress';
-  if (s >= 41) return 'Keep going';
-  if (s >= 21) return 'Getting started';
-  return 'Begin today';
-}
 
 function prayerStatusColor(status: PrayerStatus | null, colors: ReturnType<typeof useColors>) {
   if (status === 'prayed' || status === 'masjid') return colors.primary;
@@ -63,89 +36,109 @@ function prayerStatusIcon(status: PrayerStatus | null): keyof typeof Ionicons.gl
   return 'remove';
 }
 
+function scoreLabel(s: number) {
+  if (s >= 96) return 'Perfect day!';
+  if (s >= 81) return 'Excellent work';
+  if (s >= 61) return 'Great progress';
+  if (s >= 41) return 'Keep going';
+  if (s >= 21) return 'Getting started';
+  return 'Begin today';
+}
+
+import type { DailyLog } from '@/types';
+
+function getRecentActivity(log: DailyLog): string[] {
+  const items: string[] = [];
+  const prayers: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  const prayed = prayers.filter(p => log.prayers[p] === 'prayed' || log.prayers[p] === 'masjid');
+  if (prayed.length > 0) {
+    items.push(`Prayed ${prayed.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')}`);
+  }
+  if (log.quranPages > 0) {
+    items.push(`Read ${log.quranPages} page${log.quranPages !== 1 ? 's' : ''} of Quran`);
+  }
+  if (log.waterMl > 0) {
+    items.push(`Drank ${(log.waterMl / 1000).toFixed(1)}L of water`);
+  }
+  if (log.workoutDone) {
+    items.push(`Completed ${log.workoutType ?? 'a'} workout (${log.workoutMinutes} mins)`);
+  }
+  if (log.dhikrMorning) items.push('Completed morning adhkar');
+  if (log.dhikrEvening) items.push('Completed evening adhkar');
+  if (log.islamicLearningMinutes > 0) {
+    items.push(`${log.islamicLearningMinutes} mins of Islamic learning`);
+  }
+  if (log.sleepHours > 0) {
+    items.push(`Logged ${log.sleepHours}h sleep`);
+  }
+  return items;
+}
+
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { getTodayLog, calculateDailyScore, getPrayerStreak, getQuranStreak } = useApp();
-  const { state } = useApp();
+  const {
+    getTodayLog, calculateDailyScore, getPrayerStreak, getFajrStreak,
+    getQuranStreak, getWorkoutStreak, state,
+  } = useApp();
 
   const todayLog = getTodayLog();
   const score = calculateDailyScore(todayLog);
   const prayerStreak = getPrayerStreak();
+  const fajrStreak = getFajrStreak();
   const quranStreak = getQuranStreak();
-  const greeting = getGreeting();
+  const workoutStreak = getWorkoutStreak();
+
   const now = new Date();
   const hijri = toHijri(now);
-  const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
-  const quote = QUOTES[dayOfYear % QUOTES.length]!;
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const hijriStr = formatHijri(hijri);
 
   const completedPrayers = useMemo(() => {
-    const prayers: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-    return prayers.filter(p => todayLog.prayers[p] === 'prayed' || todayLog.prayers[p] === 'masjid').length;
+    return PRAYER_META.filter(p =>
+      todayLog.prayers[p.key] === 'prayed' || todayLog.prayers[p.key] === 'masjid'
+    ).length;
   }, [todayLog.prayers]);
 
-  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const recentActivity = useMemo(() => getRecentActivity(todayLog as any), [todayLog]);
 
-  const s = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    scrollContent: { paddingTop: insets.top + 12, paddingBottom: TAB_BAR_EXTRA },
-    header: { paddingHorizontal: 20, paddingBottom: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-    arabicGreeting: { fontSize: 13, color: colors.gold, fontStyle: 'italic', marginBottom: 2 },
-    englishGreeting: { fontSize: 14, color: colors.mutedForeground, marginBottom: 2 },
-    nameText: { fontSize: 26, fontWeight: '700', color: colors.foreground, letterSpacing: -0.5 },
-    dateText: { fontSize: 12, color: colors.mutedForeground, marginTop: 3 },
-    card: {
-      backgroundColor: colors.card, borderRadius: colors.radius, marginHorizontal: 16, marginBottom: 12,
-      padding: 18, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06,
-      shadowRadius: 8, elevation: 3, borderWidth: 1, borderColor: colors.border,
-    },
-    sectionLabel: { fontSize: 11, fontWeight: '600', color: colors.mutedForeground, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 12 },
-    scoreLabelText: { fontSize: 16, fontWeight: '600', color: colors.foreground, marginBottom: 4 },
-    scorePercent: { fontSize: 28, fontWeight: '800', color: colors.primary, letterSpacing: -1 },
-    statRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
-    statValue: { fontSize: 16, fontWeight: '700', color: colors.foreground },
-    statLabel: { fontSize: 11, color: colors.mutedForeground },
-    prayerPill: { flex: 1, alignItems: 'center', paddingVertical: 10 },
-    prayerCircle: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', marginBottom: 5 },
-    prayerShort: { fontSize: 10, fontWeight: '600', color: colors.foreground },
-    prayerTime: { fontSize: 9, color: colors.mutedForeground, marginTop: 1 },
-    statsGrid: { flexDirection: 'row', gap: 10, marginHorizontal: 16, marginBottom: 12 },
-    statCard: {
-      flex: 1, backgroundColor: colors.card, borderRadius: colors.radius, padding: 14,
-      shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05,
-      shadowRadius: 4, elevation: 2, borderWidth: 1, borderColor: colors.border,
-    },
-    statCardIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-    statCardValue: { fontSize: 18, fontWeight: '700', color: colors.foreground },
-    statCardLabel: { fontSize: 10, color: colors.mutedForeground, marginTop: 2 },
-    quoteCard: {
-      backgroundColor: colors.goldLight, borderRadius: colors.radius, marginHorizontal: 16, marginBottom: 12,
-      padding: 18, borderLeftWidth: 3, borderLeftColor: colors.gold,
-      borderWidth: 1, borderColor: colors.gold + '30',
-    },
-    quoteText: { fontSize: 13, color: colors.foreground, fontStyle: 'italic', lineHeight: 20, marginBottom: 8 },
-    quoteSource: { fontSize: 11, color: colors.gold, fontWeight: '600', textAlign: 'right' },
-    notifBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.secondary, alignItems: 'center', justifyContent: 'center' },
-  });
+  const card = {
+    backgroundColor: colors.card,
+    borderRadius: colors.radius,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: colors.border,
+  };
+
+  const streaks = [
+    { label: 'Prayer', value: prayerStreak, icon: 'moon-outline' as const, color: colors.primary },
+    { label: 'Fajr', value: fajrStreak, icon: 'sunny-outline' as const, color: colors.gold },
+    { label: 'Quran', value: quranStreak, icon: 'book-outline' as const, color: '#22C55E' },
+    { label: 'Workout', value: workoutStreak, icon: 'barbell-outline' as const, color: '#EF4444' },
+  ];
 
   return (
-    <View style={s.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={s.scrollContent}>
-        {/* Header */}
-        <View style={s.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={s.arabicGreeting}>{greeting.arabic}</Text>
-            <Text style={s.englishGreeting}>{greeting.english}</Text>
-            <Text style={s.nameText}>{state.profile.name}</Text>
-            <Text style={s.dateText}>{dateStr}  ·  {formatHijri(hijri)}</Text>
-          </View>
-          <TouchableOpacity style={s.notifBtn}>
-            <Ionicons name="notifications-outline" size={20} color={colors.foreground} />
-          </TouchableOpacity>
-        </View>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: TAB_BAR_EXTRA }}
+      >
+        {/* 1. Greeting */}
+        <Greeting
+          name={state.profile.name}
+          dateStr={dateStr}
+          hijriStr={hijriStr}
+        />
 
-        {/* Daily Score Card */}
-        <View style={s.card}>
+        {/* 2. Today's Score Card */}
+        <View style={card}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
             <ProgressRing score={score} size={116} strokeWidth={10} color={colors.primary}>
               <View style={{ alignItems: 'center' }}>
@@ -154,114 +147,212 @@ export default function HomeScreen() {
               </View>
             </ProgressRing>
             <View style={{ flex: 1 }}>
-              <Text style={s.sectionLabel}>Today's Score</Text>
-              <Text style={s.scoreLabelText}>{scoreLabel(score)}</Text>
-              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: 10 }} />
-              <View style={s.statRow}>
-                <Ionicons name="flame" size={15} color={colors.warning} />
-                <Text style={s.statValue}>{prayerStreak}</Text>
-                <Text style={s.statLabel}>{prayerStreak === 1 ? 'day' : 'days'} streak</Text>
-              </View>
-              <View style={s.statRow}>
-                <Ionicons name="book-outline" size={15} color={colors.primary} />
-                <Text style={s.statValue}>{todayLog.quranPages}</Text>
-                <Text style={s.statLabel}>Quran pages</Text>
-              </View>
-              <View style={s.statRow}>
-                <Ionicons name="water-outline" size={15} color="#3B82F6" />
-                <Text style={s.statValue}>{(todayLog.waterMl / 1000).toFixed(1)}L</Text>
-                <Text style={s.statLabel}>of 2L water</Text>
-              </View>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: colors.mutedForeground, letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 4 }}>
+                Today's Score
+              </Text>
+              <Text style={{ fontSize: 16, fontWeight: '700', color: colors.foreground, marginBottom: 10 }}>
+                {scoreLabel(score)}
+              </Text>
+              <View style={{ height: 1, backgroundColor: colors.border, marginBottom: 10 }} />
+              {[
+                { icon: 'flame' as const, color: colors.warning, value: prayerStreak, label: 'day streak' },
+                { icon: 'book-outline' as const, color: colors.primary, value: todayLog.quranPages, label: 'Quran pages' },
+                { icon: 'water-outline' as const, color: '#3B82F6', value: `${(todayLog.waterMl / 1000).toFixed(1)}L`, label: 'water' },
+              ].map((s, i) => (
+                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 7 }}>
+                  <Ionicons name={s.icon} size={14} color={s.color} />
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground }}>{s.value}</Text>
+                  <Text style={{ fontSize: 11, color: colors.mutedForeground }}>{s.label}</Text>
+                </View>
+              ))}
             </View>
           </View>
         </View>
 
-        {/* Prayer Status */}
-        <View style={s.card}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        {/* 3. Next Prayer Card */}
+        <View style={{ marginHorizontal: 16 }}>
+          <UpcomingPrayerCard />
+        </View>
+
+        {/* 4. Today's Prayer Tracker */}
+        <View style={card}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground }}>Today's Prayers</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <Text style={{ fontSize: 18, fontWeight: '800', color: completedPrayers === 5 ? colors.primary : colors.foreground }}>{completedPrayers}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 2 }}>
+              <Text style={{ fontSize: 20, fontWeight: '800', color: completedPrayers === 5 ? colors.primary : colors.foreground }}>
+                {completedPrayers}
+              </Text>
               <Text style={{ fontSize: 13, color: colors.mutedForeground }}>/5</Text>
             </View>
           </View>
           <View style={{ flexDirection: 'row' }}>
-            {PRAYER_NAMES.map(p => {
+            {PRAYER_META.map(p => {
               const status = todayLog.prayers[p.key];
               const bgColor = prayerStatusColor(status, colors);
               const icon = prayerStatusIcon(status);
               return (
-                <View key={p.key} style={s.prayerPill}>
-                  <View style={[s.prayerCircle, { backgroundColor: status ? bgColor : colors.muted, borderWidth: status ? 0 : 1, borderColor: colors.border }]}>
+                <View key={p.key} style={{ flex: 1, alignItems: 'center', paddingVertical: 8 }}>
+                  <View style={{
+                    width: 38, height: 38, borderRadius: 12,
+                    backgroundColor: status ? bgColor : colors.muted,
+                    borderWidth: status ? 0 : 1, borderColor: colors.border,
+                    alignItems: 'center', justifyContent: 'center', marginBottom: 5,
+                  }}>
                     <Ionicons name={icon} size={16} color={status ? '#fff' : colors.mutedForeground} />
                   </View>
-                  <Text style={[s.prayerShort, { color: status ? bgColor : colors.foreground }]}>{p.short}</Text>
-                  <Text style={s.prayerTime}>{p.time}</Text>
+                  <Text style={{ fontSize: 10, fontWeight: '600', color: status ? bgColor : colors.foreground }}>
+                    {p.short}
+                  </Text>
+                  <Text style={{ fontSize: 9, color: colors.mutedForeground, marginTop: 1 }}>{p.time}</Text>
                 </View>
               );
             })}
           </View>
         </View>
 
-        {/* Quick Stats Grid */}
-        <View style={s.statsGrid}>
-          <View style={s.statCard}>
-            <View style={[s.statCardIcon, { backgroundColor: '#3B82F618' }]}>
-              <Ionicons name="water-outline" size={16} color="#3B82F6" />
-            </View>
-            <Text style={s.statCardValue}>{(todayLog.waterMl / 1000).toFixed(1)}L</Text>
-            <Text style={s.statCardLabel}>Water</Text>
-          </View>
-          <View style={s.statCard}>
-            <View style={[s.statCardIcon, { backgroundColor: '#A78BFA18' }]}>
-              <Ionicons name="moon-outline" size={16} color="#A78BFA" />
-            </View>
-            <Text style={s.statCardValue}>{todayLog.sleepHours > 0 ? `${todayLog.sleepHours}h` : '—'}</Text>
-            <Text style={s.statCardLabel}>Sleep</Text>
-          </View>
-          <View style={s.statCard}>
-            <View style={[s.statCardIcon, { backgroundColor: colors.emeraldLight }]}>
-              <Ionicons name="barbell-outline" size={16} color={colors.primary} />
-            </View>
-            <Text style={s.statCardValue}>{todayLog.workoutDone ? 'Done' : '—'}</Text>
-            <Text style={s.statCardLabel}>Workout</Text>
-          </View>
-        </View>
-
-        {/* Quote of the Day */}
-        <View style={s.quoteCard}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-            <Ionicons name="sparkles" size={12} color={colors.gold} />
-            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.gold, letterSpacing: 0.8, textTransform: 'uppercase' }}>Wisdom of the Day</Text>
-          </View>
-          <Text style={s.quoteText}>"{quote.text}"</Text>
-          <Text style={s.quoteSource}>{quote.source} · {quote.ref}</Text>
-        </View>
-
-        {/* Daily Goals Preview */}
-        <View style={s.card}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground }}>Daily Goals</Text>
-            <Text style={{ fontSize: 12, color: colors.primary, fontWeight: '600' }}>
-              {state.goals.filter(g => g.type === 'daily').filter(g => g.current >= g.target).length}/
-              {state.goals.filter(g => g.type === 'daily').length} done
-            </Text>
-          </View>
-          {state.goals.filter(g => g.type === 'daily').slice(0, 3).map(goal => {
-            const pct = Math.min(goal.current / goal.target, 1);
-            return (
-              <View key={goal.id} style={{ marginBottom: 12 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                  <Text style={{ fontSize: 13, fontWeight: '500', color: colors.foreground }}>{goal.title}</Text>
-                  <Text style={{ fontSize: 11, color: colors.mutedForeground }}>{goal.current}/{goal.target} {goal.unit}</Text>
+        {/* 5. Quick Stats — Water, Sleep, Workout, Quran, Learning */}
+        <View style={{ marginHorizontal: 16, marginBottom: 12, gap: 10 }}>
+          {/* Row 1 */}
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {[
+              { label: 'Water', value: `${(todayLog.waterMl / 1000).toFixed(1)}L`, sub: `of 2L`, icon: 'water-outline' as const, color: '#3B82F6' },
+              { label: 'Sleep', value: todayLog.sleepHours > 0 ? `${todayLog.sleepHours}h` : '—', sub: 'last night', icon: 'moon-outline' as const, color: '#A78BFA' },
+              { label: 'Workout', value: todayLog.workoutDone ? 'Done' : '—', sub: todayLog.workoutType ?? 'not logged', icon: 'barbell-outline' as const, color: colors.primary },
+            ].map(s => (
+              <View key={s.label} style={{
+                flex: 1, backgroundColor: colors.card, borderRadius: colors.radius,
+                padding: 14, borderWidth: 1, borderColor: colors.border,
+                shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+              }}>
+                <View style={{ width: 30, height: 30, borderRadius: 9, backgroundColor: s.color + '18', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                  <Ionicons name={s.icon} size={15} color={s.color} />
                 </View>
-                <View style={{ height: 5, backgroundColor: colors.muted, borderRadius: 3 }}>
-                  <View style={{ height: 5, width: `${pct * 100}%`, backgroundColor: pct >= 1 ? colors.success : colors.primary, borderRadius: 3 }} />
+                <Text style={{ fontSize: 18, fontWeight: '800', color: colors.foreground }}>{s.value}</Text>
+                <Text style={{ fontSize: 10, color: colors.mutedForeground, marginTop: 2 }}>{s.label}</Text>
+              </View>
+            ))}
+          </View>
+          {/* Row 2 */}
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {[
+              { label: 'Quran', value: `${todayLog.quranPages}`, sub: 'pages read', icon: 'book-outline' as const, color: colors.gold },
+              { label: 'Learning', value: todayLog.islamicLearningMinutes > 0 ? `${todayLog.islamicLearningMinutes}m` : '—', sub: 'Islamic study', icon: 'library-outline' as const, color: '#22C55E' },
+            ].map(s => (
+              <View key={s.label} style={{
+                flex: 1, backgroundColor: colors.card, borderRadius: colors.radius,
+                padding: 14, borderWidth: 1, borderColor: colors.border,
+                shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
+              }}>
+                <View style={{ width: 30, height: 30, borderRadius: 9, backgroundColor: s.color + '18', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                  <Ionicons name={s.icon} size={15} color={s.color} />
+                </View>
+                <Text style={{ fontSize: 18, fontWeight: '800', color: colors.foreground }}>{s.value}</Text>
+                <Text style={{ fontSize: 10, color: colors.mutedForeground, marginTop: 2 }}>{s.label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* 6. Today's Goals */}
+        {state.goals.filter(g => g.type === 'daily').length > 0 && (
+          <View style={card}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground }}>Daily Goals</Text>
+              <Text style={{ fontSize: 12, color: colors.primary, fontWeight: '600' }}>
+                {state.goals.filter(g => g.type === 'daily' && g.current >= g.target).length}/
+                {state.goals.filter(g => g.type === 'daily').length} done
+              </Text>
+            </View>
+            {state.goals.filter(g => g.type === 'daily').slice(0, 4).map(goal => {
+              const pct = Math.min(goal.current / goal.target, 1);
+              return (
+                <View key={goal.id} style={{ marginBottom: 12 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '500', color: colors.foreground }}>{goal.title}</Text>
+                    <Text style={{ fontSize: 11, color: colors.mutedForeground }}>{goal.current}/{goal.target} {goal.unit}</Text>
+                  </View>
+                  <View style={{ height: 5, backgroundColor: colors.muted, borderRadius: 3 }}>
+                    <View style={{
+                      height: 5,
+                      width: `${pct * 100}%`,
+                      backgroundColor: pct >= 1 ? colors.success : colors.primary,
+                      borderRadius: 3,
+                    }} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
+        {/* 7. Hadith / Ayah of the Day */}
+        <View style={{ marginHorizontal: 16 }}>
+          <HadithCard />
+        </View>
+
+        {/* 8. Current Streaks */}
+        <View style={card}>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground, marginBottom: 14 }}>
+            Current Streaks
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {streaks.map(s => (
+              <View key={s.label} style={{
+                flex: 1, alignItems: 'center', paddingVertical: 14,
+                borderRadius: 14, backgroundColor: s.color + '12',
+                borderWidth: 1, borderColor: s.color + '30',
+              }}>
+                <Ionicons name={s.icon} size={16} color={s.color} />
+                <Text style={{ fontSize: 22, fontWeight: '800', color: s.color, marginTop: 5 }}>
+                  {s.value}
+                </Text>
+                <Text style={{ fontSize: 9, color: colors.mutedForeground, marginTop: 2 }}>
+                  {s.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* 9. Recent Activity */}
+        {recentActivity.length > 0 && (
+          <View style={card}>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.foreground, marginBottom: 14 }}>
+              Recent Activity
+            </Text>
+            {recentActivity.map((item, i) => (
+              <View key={i} style={{
+                flexDirection: 'row', alignItems: 'flex-start', gap: 10,
+                paddingVertical: 8,
+                borderBottomWidth: i < recentActivity.length - 1 ? 1 : 0,
+                borderBottomColor: colors.border,
+              }}>
+                <View style={{
+                  width: 28, height: 28, borderRadius: 8,
+                  backgroundColor: colors.emeraldLight, alignItems: 'center', justifyContent: 'center', marginTop: 1,
+                }}>
+                  <Ionicons name="checkmark" size={14} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 13, fontWeight: '500', color: colors.foreground }}>{item}</Text>
+                  <Text style={{ fontSize: 10, color: colors.mutedForeground, marginTop: 1 }}>Today</Text>
                 </View>
               </View>
-            );
-          })}
-        </View>
+            ))}
+          </View>
+        )}
+
+        {recentActivity.length === 0 && (
+          <View style={[card, { alignItems: 'center', paddingVertical: 24 }]}>
+            <Ionicons name="time-outline" size={32} color={colors.mutedForeground} style={{ marginBottom: 10 }} />
+            <Text style={{ fontSize: 14, fontWeight: '600', color: colors.foreground, marginBottom: 4 }}>
+              No activity yet today
+            </Text>
+            <Text style={{ fontSize: 12, color: colors.mutedForeground, textAlign: 'center' }}>
+              Log your first prayer or drink some water to get started
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

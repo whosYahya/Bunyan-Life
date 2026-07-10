@@ -1,0 +1,331 @@
+Replit Prompt – Dashboard UI Improvements (Bunyan)
+
+You are working on the existing React Native + Expo Bunyan mobile application.
+
+Do NOT redesign the application.
+
+Keep the existing theme, architecture, color palette, components, animations, spacing, and layout consistent.
+
+Only implement the following UI/UX improvements.
+
+1. Replace Greeting
+
+Currently the dashboard says:
+
+Good Morning,
+Good Afternoon,
+Good Evening,
+Good Night
+
+Replace this completely.
+
+Instead display the Islamic greeting:
+
+السلام عليكم
+
+(or)
+
+Assalamu Alaikum
+
+depending on whether Arabic support is enabled.
+
+The greeting should always appear above the user's name.
+
+Example:
+
+السلام عليكم
+
+Yahya
+
+The Arabic greeting should use an elegant Arabic font.
+
+It should be slightly smaller than the user's name.
+
+Do not make it bold.
+
+Keep the current spacing.
+
+2. Authentication Screens
+
+Create a complete authentication flow.
+
+Screen 1
+
+Welcome Screen
+
+Display:
+
+Bunyan logo
+
+App name
+
+Tagline
+
+Build Yourself.
+Strengthen the Ummah.
+
+Buttons
+
+Continue with Google
+
+Continue with Apple
+
+Continue with Email
+
+Continue as Guest
+Email Login
+
+Fields
+
+Email
+
+Password
+
+Forgot Password
+
+Login button
+
+Link
+
+Don't have an account?
+Create one
+Register Screen
+
+Fields
+
+Full Name
+
+Username
+
+Email
+
+Password
+
+Confirm Password
+
+Country (optional)
+
+Timezone
+
+Button
+
+Create Account
+
+Checkbox
+
+I agree to the Terms &
+Privacy Policy
+
+After successful signup,
+
+navigate to the onboarding flow.
+
+3. Upcoming Prayer Card
+
+On the Home Dashboard,
+
+add a new premium card directly below the Daily Score card.
+
+Card Title
+
+Next Prayer
+
+Example
+
+🕌 Next Prayer
+
+Maghrib
+
+6:48 PM
+
+In 2 hrs 17 mins
+
+Requirements
+
+Automatically determine
+
+current prayer
+next prayer
+remaining time
+
+Display
+
+Prayer icon
+
+Prayer name
+
+Prayer time
+
+Countdown timer
+
+When countdown reaches zero,
+
+automatically switch to the next prayer.
+
+Use local timezone.
+
+Use a clean countdown format:
+
+2 hrs 15 mins
+
+38 mins
+
+5 mins
+
+The card should visually match the existing dashboard cards.
+
+4. Wisdom Section
+
+Rename
+
+Wisdom of the Day
+
+to
+
+Hadith of the Day
+
+or
+
+Ayah of the Day
+
+depending on the content type.
+
+Implement a simple toggle.
+
+Example
+
+○ Hadith
+● Ayah
+
+or vice versa.
+
+Each day,
+
+randomly display one item from a local JSON dataset.
+
+Example JSON
+
+ayahs.json
+
+hadiths.json
+
+Structure
+
+Arabic
+
+English Translation
+
+Reference
+
+Reflection
+
+Display
+
+Arabic (optional)
+
+English Translation
+
+Reference
+
+Reflection
+
+Example
+
+────────────
+
+Ayah of the Day
+
+"Indeed, Allah is with the patient."
+
+— Surah Al-Baqarah 2:153
+
+Reflection
+
+Every hardship is temporary.
+Patience strengthens the believer.
+
+────────────
+
+The card should be swipeable
+
+to see another Ayah/Hadith.
+
+5. Dashboard Layout
+
+Final Home Dashboard order should be:
+
+Greeting
+
+السلام عليكم
+
+Name
+
+Date
+
+Hijri Date
+
+Notification Icon
+
+Today's Score Card
+
+Next Prayer Card
+
+Today's Prayer Tracker
+
+Quick Stats
+
+Water
+
+Sleep
+
+Workout
+
+Quran
+
+Reading
+
+Screen Time
+
+Today's Goals
+
+Hadith/Ayah of the Day
+
+Current Streaks
+
+Recent Activity
+
+Floating Action Button
+
+6. Code Requirements
+
+Keep code clean.
+
+Do not duplicate components.
+
+Reuse existing Card components.
+
+Create
+
+UpcomingPrayerCard.tsx
+
+Greeting.tsx
+
+HadithCard.tsx
+
+LoginScreen.tsx
+
+RegisterScreen.tsx
+
+Store sample Hadith and Ayah data inside
+
+/assets/data/
+
+Use TypeScript.
+
+Use Zustand for state management if authentication state is already managed there.
+
+Keep the UI fully responsive.
+
+Support both Light Mode and Dark Mode.
+
+Do not modify existing styling unless required.

@@ -11,19 +11,41 @@ import {
   Inter_700Bold,
   useFonts,
 } from '@expo-google-fonts/inter';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { AppProvider } from '@/context/AppContext';
+import { AppProvider, useApp } from '@/context/AppContext';
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+/**
+ * Guards the tab navigator: if the user is not authenticated once hydration
+ * is complete, redirect them to the Welcome screen.
+ */
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { state, isLoading } = useApp();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !state.auth.isAuthenticated) {
+      router.replace('/welcome');
+    }
+  }, [isLoading, state.auth.isAuthenticated]);
+
+  return <>{children}</>;
+}
+
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <AuthGuard>
+      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="welcome" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="register" options={{ headerShown: false }} />
+      </Stack>
+    </AuthGuard>
   );
 }
 

@@ -45,13 +45,22 @@ const INITIAL_GOALS: Goal[] = [
   { id: 'g4', title: 'Workout 3x per week', category: 'fitness', target: 3, current: 0, unit: 'sessions', deadline: '', type: 'weekly', createdAt: new Date().toISOString() },
 ];
 
+interface AuthState {
+  isAuthenticated: boolean;
+  email: string | null;
+  authType: 'guest' | 'email' | null;
+}
+
 interface AppState {
   profile: UserProfile;
   dailyLogs: Record<string, DailyLog>;
   goals: Goal[];
   achievements: Achievement[];
   settings: AppSettings;
+  auth: AuthState;
 }
+
+const CREDENTIALS_KEY = '@bunyan/credentials/v1';
 
 const INITIAL_STATE: AppState = {
   profile: { name: 'Brother', avatarUri: null, level: 'Builder', joinedAt: new Date().toISOString() },
@@ -59,6 +68,7 @@ const INITIAL_STATE: AppState = {
   goals: INITIAL_GOALS,
   achievements: INITIAL_ACHIEVEMENTS,
   settings: { notifications: true, prayerReminders: true, language: 'en' },
+  auth: { isAuthenticated: false, email: null, authType: null },
 };
 
 interface AppContextValue {
@@ -85,6 +95,11 @@ interface AppContextValue {
   addGoal: (goal: Omit<Goal, 'id' | 'createdAt'>) => Promise<void>;
   updateGoalProgress: (id: string, current: number) => Promise<void>;
   deleteGoal: (id: string) => Promise<void>;
+  // Auth
+  loginAsGuest: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (args: { name: string; email: string; password: string }) => Promise<{ success: boolean; error?: string }>;
+  logout: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -364,12 +379,77 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     update(prev => ({ ...prev, goals: prev.goals.filter(g => g.id !== id) }));
   }, [update]);
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
+
+  const loginAsGuest = useCallback(async () => {
+    update(prev => ({
+      ...prev,
+      auth: { isAuthenticated: true, email: null, authType: 'guest' },
+    }));
+  }, [update]);
+
+  const loginWithEmail = useCallback(async (
+    email: string,
+    password: string,
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const raw = await AsyncStorage.getItem(CREDENTIALS_KEY);
+      if (!raw) return { success: false, error: 'No account found. Please register first.' };
+      const creds = JSON.parse(raw) as { email: string; password: string; name: string };
+      if (creds.email !== email) return { success: false, error: 'Email not found.' };
+      if (creds.password !== password) return { success: false, error: 'Incorrect password.' };
+      update(prev => ({
+        ...prev,
+        profile: { ...prev.profile, name: creds.name },
+        auth: { isAuthenticated: true, email, authType: 'email' },
+      }));
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Something went wrong. Please try again.' };
+    }
+  }, [update]);
+
+  const register = useCallback(async (
+    args: { name: string; email: string; password: string },
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const existing = await AsyncStorage.getItem(CREDENTIALS_KEY);
+      if (existing) {
+        const creds = JSON.parse(existing) as { email: string };
+        if (creds.email === args.email) {
+          return { success: false, error: 'An account with this email already exists.' };
+        }
+      }
+      await AsyncStorage.setItem(CREDENTIALS_KEY, JSON.stringify({
+        email: args.email,
+        password: args.password,
+        name: args.name,
+      }));
+      update(prev => ({
+        ...prev,
+        profile: { ...prev.profile, name: args.name },
+        auth: { isAuthenticated: true, email: args.email, authType: 'email' },
+      }));
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Registration failed. Please try again.' };
+    }
+  }, [update]);
+
+  const logout = useCallback(async () => {
+    update(prev => ({
+      ...prev,
+      auth: { isAuthenticated: false, email: null, authType: null },
+    }));
+  }, [update]);
+
   const value: AppContextValue = {
     state, isLoading,
     getTodayLog, getWeeklyLogs, calculateDailyScore,
     getPrayerStreak, getFajrStreak, getQuranStreak, getWorkoutStreak, getTotalStats,
     logPrayer, logQuran, toggleDhikr, setTasbeeh, logWorkout, addWater, logSleep,
     logNutrition, logLearning, updateProfile, addGoal, updateGoalProgress, deleteGoal,
+    loginAsGuest, loginWithEmail, register, logout,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
