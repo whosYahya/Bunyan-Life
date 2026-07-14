@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/images/icon.png" alt="Bunyan Logo" width="180"/>
+<img src="artifacts/bunyan/assets/images/icon.png" alt="Bunyan Logo" width="180"/>
 
 # Bunyan (بنيان)
 ### *Your Modern Deen & Lifestyle Companion*
