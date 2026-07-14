@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=200&h=200&fit=crop" alt="Bunyan Logo" width="150" style="border-radius:18px;" />
+<img src="assets/images/icon.png"
+     alt="Bunyan Logo"
+     width="180"
+     style="border-radius:20px;" />
 
 # Bunyan (بنيان)
 ### *Your Modern Deen & Lifestyle Companion*
